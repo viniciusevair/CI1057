@@ -25,16 +25,6 @@ struct tNo *rotEsquerda (struct tNo *p) {
     return q;
 }
 
-// not sure if correct
-// tNo rotEsquerda (tNo *p) {
-//     tNo *q = p->dir;
-//     p->dir = q->esq;
-// 
-//     q->esq = p;
-//     return q;
-// }
-
-
 struct tNo *rotDireita (struct tNo *p) {
     struct tNo *q = p->esq;
     p->esq = q->dir;
