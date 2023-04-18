@@ -42,24 +42,34 @@ struct tNo *criaNo(int chave) {
     no->esq = NULL;
     no->dir = NULL;
     no->pai = NULL;
+    no->altura = 0;
 
     return no;
 }
 
-struct tNo *adicionaChave(int chave) {
+struct tNo *adicionaChave(struct tNo *no) {
+    int i;
+
+    return NULL;
 }
 
-int tamanhoGalho(struct tNo *no) {
+int quantidadeNos(struct tNo *no) {
     if (no == NULL)
         return 0;
 
-    return 1 + tamanhoGalho(no->esq) + tamanhoGalho(no->dir);
+    return 1 + quantidadeNos(no->esq) + quantidadeNos(no->dir);
 }
 
 struct tNo *min(struct tNo *no) {
     if (no->esq == NULL)
         return no;
     return min(no->esq);
+}
+
+int comparaAltura (struct tNo *no) {
+    if (no == NULL)
+        return 0;
+    return altura(no->esq) - altura(no->dir);
 }
 
 struct tNo *rotEsquerda (struct tArvore *tree, struct tNo *p) {
@@ -98,6 +108,16 @@ struct tNo *rotDireita (struct tArvore *tree, struct tNo *p) {
     q->dir = p;
     p->pai = q;
     return q;
+}
+
+struct tNo *busca(struct tNo *no, int chave) {
+    if (no == NULL)
+        return NULL;
+    if (no->chave == chave)
+        return no;
+    if (chave < no->chave)
+        return busca(no->esq, chave);
+    return busca(no->dir, chave);
 }
 
 void imprimeEmOrdem(struct tNo *no) {
