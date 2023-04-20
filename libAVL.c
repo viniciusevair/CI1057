@@ -47,7 +47,7 @@ struct tNo *criaNo(int chave) {
     return no;
 }
 
-struct tNo *adicionaChave(struct tNo *no) {
+struct tNo *adicionaChave(struct tNo *raiz, int chave) {
     int i;
 
     return NULL;
@@ -64,6 +64,10 @@ struct tNo *min(struct tNo *no) {
     if (no->esq == NULL)
         return no;
     return min(no->esq);
+}
+
+int altura(struct tNo *no) {
+    return no->altura;
 }
 
 int comparaAltura (struct tNo *no) {
