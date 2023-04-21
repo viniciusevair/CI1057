@@ -1,6 +1,6 @@
 struct tNo {
     int chave;
-    int altura;
+    int equilibrio;
     struct tNo *esq, *dir, *pai;
 };
 

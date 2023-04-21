@@ -2,12 +2,6 @@
 #include <stdio.h>
 #include "libAVL.h"
 
-void zeraFamilia(struct tNo *no) {
-    no->esq = NULL;
-    no->dir = NULL;
-    no->pai = NULL;
-}
-
 struct tArvore *criaArvore() {
     struct tArvore *tree;
     if (! (tree = malloc(sizeof(struct tNo)))) {
@@ -42,15 +36,43 @@ struct tNo *criaNo(int chave) {
     no->esq = NULL;
     no->dir = NULL;
     no->pai = NULL;
-    no->altura = 0;
+    no->equilibrio = 0;
 
     return no;
 }
 
-struct tNo *adicionaChave(struct tNo *raiz, int chave) {
-    int i;
+struct tNo *ajustaArvore(struct tNo *no) {
+    struct tNo *aux;
+    if (no->equilibrio == -2) {
+        if (no->esq != NULL && no->esq->equilibrio > 0)
+            no->esq = rotEsquerda(no);
 
-    return NULL;
+    } else if (no->equilibrio == 2) {
+        //faz outra coisa
+    }
+}
+
+struct tNo *adicionaChave(struct tNo *no, int chave) {
+    if (no == NULL) {
+        no = criaNo(chave);
+        return no;
+    }
+
+    if (chave < no->chave) {
+        no->esq = adicionaChave(no->esq, chave);
+        no->esq->pai = no;
+        (no->equilibrio)--;
+    }
+    else {
+        no->dir = adicionaChave(no->dir, chave);
+        no->dir->pai = no;
+        (no->equilibrio)++;
+    }
+
+    if (no->equilibrio == -2 || no->equilibrio == 2)
+        ajustaArvore(no);
+
+    return no;
 }
 
 int quantidadeNos(struct tNo *no) {
@@ -67,10 +89,20 @@ struct tNo *min(struct tNo *no) {
 }
 
 int altura(struct tNo *no) {
-    return no->altura;
+    int altEsq, altDir;
+
+    if (no == NULL)
+        return -1;
+
+    altEsq = altura(no->esq);
+    altDir = altura(no->dir);
+
+    if (altDir < altEsq)
+        return altEsq + 1;
+    return altDir + 1;
 }
 
-int comparaAltura (struct tNo *no) {
+int fatorEquilibrio (struct tNo *no) {
     if (no == NULL)
         return 0;
     return altura(no->esq) - altura(no->dir);
@@ -79,9 +111,9 @@ int comparaAltura (struct tNo *no) {
 struct tNo *rotEsquerda (struct tArvore *tree, struct tNo *p) {
     struct tNo *q = p->dir;
     p->dir = q->esq;
+    q->pai = p->pai;
     if (q->esq != NULL)
         q->esq->pai = p;
-    q->pai = p->pai;
     if (p->pai == NULL)
         tree->raiz = q;
     else 
@@ -98,9 +130,9 @@ struct tNo *rotEsquerda (struct tArvore *tree, struct tNo *p) {
 struct tNo *rotDireita (struct tArvore *tree, struct tNo *p) {
     struct tNo *q = p->esq;
     p->esq = q->dir;
+    q->pai = p->pai;
     if (q->dir != NULL)
         q->dir->pai = p;
-    q->pai = p->pai;
     if (p->pai == NULL)
         tree->raiz = q;
     else 
