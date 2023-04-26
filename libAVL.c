@@ -41,73 +41,6 @@ struct tNo *criaNo(int chave) {
     return no;
 }
 
-struct tNo *ajustaArvore(struct tNo *no) {
-    struct tNo *aux;
-    if (no->equilibrio == -2) {
-        if (no->esq != NULL && no->esq->equilibrio > 0)
-            no->esq = rotEsquerda(no);
-
-    } else if (no->equilibrio == 2) {
-        //faz outra coisa
-    }
-}
-
-struct tNo *adicionaChave(struct tNo *no, int chave) {
-    if (no == NULL) {
-        no = criaNo(chave);
-        return no;
-    }
-
-    if (chave < no->chave) {
-        no->esq = adicionaChave(no->esq, chave);
-        no->esq->pai = no;
-        (no->equilibrio)--;
-    }
-    else {
-        no->dir = adicionaChave(no->dir, chave);
-        no->dir->pai = no;
-        (no->equilibrio)++;
-    }
-
-    if (no->equilibrio == -2 || no->equilibrio == 2)
-        ajustaArvore(no);
-
-    return no;
-}
-
-int quantidadeNos(struct tNo *no) {
-    if (no == NULL)
-        return 0;
-
-    return 1 + quantidadeNos(no->esq) + quantidadeNos(no->dir);
-}
-
-struct tNo *min(struct tNo *no) {
-    if (no->esq == NULL)
-        return no;
-    return min(no->esq);
-}
-
-int altura(struct tNo *no) {
-    int altEsq, altDir;
-
-    if (no == NULL)
-        return -1;
-
-    altEsq = altura(no->esq);
-    altDir = altura(no->dir);
-
-    if (altDir < altEsq)
-        return altEsq + 1;
-    return altDir + 1;
-}
-
-int fatorEquilibrio (struct tNo *no) {
-    if (no == NULL)
-        return 0;
-    return altura(no->esq) - altura(no->dir);
-}
-
 struct tNo *rotEsquerda (struct tArvore *tree, struct tNo *p) {
     struct tNo *q = p->dir;
     p->dir = q->esq;
@@ -146,6 +79,68 @@ struct tNo *rotDireita (struct tArvore *tree, struct tNo *p) {
     return q;
 }
 
+//struct tNo *ajustaArvore(struct tArvore *tree, struct tNo *no) {
+//    struct tNo *aux;
+//    if (no->equilibrio == -2) {
+//        if (no->esq != NULL && no->esq->equilibrio > 0)
+//            no->esq = rotEsquerda(tree, no);
+//        aux = rotDireita(tree, no);
+//    }
+//}
+
+struct tNo *adicionaChave(struct tNo *no, int chave) {
+    if (no == NULL) {
+        printf("Cheguei no fim da árvore. Vou por %d aqui.\n", chave);
+        no = criaNo(chave);
+        return no;
+    }
+
+    if (chave < no->chave) {
+        printf("%d eh menor que %d, vou pra esquerda.\n", chave, no->chave);
+        no->esq = adicionaChave(no->esq, chave);
+        no->esq->pai = no;
+        (no->equilibrio)--;
+    }
+    else {
+        printf("%d eh menor que %d, vou pra direita.\n", chave, no->chave);
+        no->dir = adicionaChave(no->dir, chave);
+        no->dir->pai = no;
+        (no->equilibrio)++;
+    }
+
+//    if (no->equilibrio == -2 || no->equilibrio == 2)
+//        ajustaArvore(no);
+
+    return no;
+}
+
+int quantidadeNos(struct tNo *no) {
+    if (no == NULL)
+        return 0;
+
+    return 1 + quantidadeNos(no->esq) + quantidadeNos(no->dir);
+}
+
+struct tNo *min(struct tNo *no) {
+    if (no->esq == NULL)
+        return no;
+    return min(no->esq);
+}
+
+int altura(struct tNo *no) {
+    int altEsq, altDir;
+
+    if (no == NULL)
+        return -1;
+
+    altEsq = altura(no->esq);
+    altDir = altura(no->dir);
+
+    if (altDir < altEsq)
+        return altEsq + 1;
+    return altDir + 1;
+}
+
 struct tNo *busca(struct tNo *no, int chave) {
     if (no == NULL)
         return NULL;
@@ -161,6 +156,6 @@ void imprimeEmOrdem(struct tNo *no) {
         return;
 
     imprimeEmOrdem(no->esq);
-    printf("%d \n", no->chave);
+    printf("%d ", no->chave);
     imprimeEmOrdem(no->dir);
 }
