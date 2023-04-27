@@ -16,5 +16,7 @@ struct tNo *destroiArvore(struct tArvore *tree);
 
 struct tNo *adicionaChave(struct tArvore *tree, struct tNo *no, int chave, int *controle);
 
+void removeChave(struct tArvore *tree, int chave);
+
 /* Imprime os valores guardados na estrutura */
 void imprimeEmOrdem(struct tNo *no);

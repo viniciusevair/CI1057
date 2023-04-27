@@ -185,9 +185,12 @@ void transplante(struct tArvore *tree, struct tNo *velho, struct tNo *novo) {
     if(novo != NULL) {
         novo->pai = velho->pai;
     }
+
+    free(velho);
 }
 
 void removeChave(struct tArvore *tree, int chave) {
+    int controle;
     struct tNo *aux, *auxSucessor;
     aux = busca(tree->raiz, chave);
 
@@ -203,7 +206,7 @@ void removeChave(struct tArvore *tree, int chave) {
                 auxSucessor->dir = aux->dir;
                 auxSucessor->dir->pai = auxSucessor;
             }
-            transplante(tree, aux, novo);
+            transplante(tree, aux, auxSucessor);
             auxSucessor->esq = aux->esq;
             auxSucessor->esq->pai = auxSucessor;
         }
