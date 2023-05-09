@@ -168,54 +168,51 @@ struct tNo *adicionaChave(struct tArvore *tree, struct tNo *no, int chave) {
 }
 
 struct tNo *ajustaRemoveArvore(struct tArvore *tree, struct tNo *no) {
-    struct tNo *p, *x, *y, *z;
-    p = no;
+    struct tNo *filhoMaior, *netoMaior;
+    int equilibrio, equilibrioFilho;
 
-    while (p != NULL) {
-        p->altura = calculaAltura(p);
+    if (no == NULL)
+        return no;
 
-        if(calculaEquilibrio(p) <= -2 || calculaEquilibrio(p) >= 2) { //grandparent is unbalanced
-            x = p;
+    no->altura = calculaAltura(no);
+    equilibrio = calculaEquilibrio(no);
 
-            //taller child of x will be y
-            if (x->esq->altura > x->dir->altura)
-                y = x->esq;
+    if(equilibrio < -1 || equilibrio > 1) {
+        if (equilibrio > 0)
+            filhoMaior = no->esq;
+        else
+            filhoMaior = no->dir;
+
+        equilibrioFilho = calculaEquilibrio(filhoMaior);
+        if (equilibrioFilho > 0)
+            netoMaior = filhoMaior->esq;
+        else if (equilibrioFilho < 0)
+            netoMaior = filhoMaior->dir;
+        else
+            if (filhoMaior == no->esq)
+                netoMaior = filhoMaior->esq;
             else
-                y = x->dir;
+                netoMaior = filhoMaior->dir;
 
-            //taller child of y will be z
-            if (y->esq->altura > y->dir->altura)
-                z = y->esq;
-            else if (y->esq->altura < y->dir->altura)
-                z = y->dir;
-            else //same altura go for single rotation
-                if (y == x->esq)
-                    z = y->esq;
-                else
-                    z = y->dir;
-
-            //perform rotaions
-            if (y == x->esq) {
-                if (z == x->esq->esq) //case1
-                    rotDireita(tree, x);
-                else if (z == x->esq->dir) { //case 3
-                    rotEsquerda(tree, y);
-                    rotDireita(tree, x);
-                }
-            }
-            else if (y == x->dir) {
-                if (z == x->dir->dir) //case 2
-                    rotEsquerda(tree, x);
-                else if (z == x->dir->esq) { //case 4
-                    rotDireita(tree, y);
-                    rotEsquerda(tree, x);
-                }
+        if (equilibrio > 0) {
+            if (netoMaior == no->esq->esq)
+                rotDireita(tree, no);
+            else if (netoMaior == no->esq->dir) {
+                rotEsquerda(tree, filhoMaior);
+                rotDireita(tree, no);
             }
         }
-        p = p->pai;
+        else {
+            if (netoMaior == no->dir->dir)
+                rotEsquerda(tree, no);
+            else if (netoMaior == no->dir->esq) {
+                rotDireita(tree, filhoMaior);
+                rotEsquerda(tree, no);
+            }
+        }
     }
 
-    return no;
+    return ajustaRemoveArvore(tree, no->pai);
 }
 
 void transplante(struct tArvore *tree, struct tNo *velho, struct tNo *novo) {
@@ -269,7 +266,7 @@ void removeChaveAux(struct tArvore *tree, struct tNo *no) {
 
 struct tNo *removeChave(struct tArvore *tree, int chave) {
     struct tNo *aux;
-    
+
     aux = busca(tree->raiz, chave);
     removeChaveAux(tree, aux);
 
