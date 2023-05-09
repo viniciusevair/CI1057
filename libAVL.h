@@ -1,6 +1,6 @@
 struct tNo {
     int chave;
-    int equilibrio;
+    int altura;
     struct tNo *esq, *dir, *pai;
 };
 
@@ -14,9 +14,9 @@ struct tArvore *criaArvore();
 /* Destroi uma árvore e retorna NULL. */
 struct tNo *destroiArvore(struct tArvore *tree);
 
-struct tNo *adicionaChave(struct tArvore *tree, struct tNo *no, int chave, int *controle);
+struct tNo *adicionaChave(struct tArvore *tree, struct tNo *no, int chave);
 
-void removeChave(struct tArvore *tree, int chave);
+struct tNo *removeChave(struct tArvore *tree, int chave);
 
 /* Imprime os valores guardados na estrutura */
-void imprimeEmOrdem(struct tNo *no);
+void imprimeEmOrdem(struct tArvore *tree);

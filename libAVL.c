@@ -42,8 +42,20 @@ struct tNo *busca(struct tNo *no, int chave) {
     return busca(no->dir, chave);
 }
 
+int calculaAltura(struct tNo *no) {
+    int alturaEsq, alturaDir;
+    if (no == NULL)
+        return -1;
+
+    alturaEsq = calculaAltura(no->esq);
+    alturaDir = calculaAltura(no->dir);
+
+    if (alturaEsq < alturaDir)
+        return alturaDir + 1;
+    return alturaEsq + 1;
+}
+
 struct tNo *rotEsquerda (struct tArvore *tree, struct tNo *no) {
-    printf("Rotacionando pra esquerda!\n");
     struct tNo *aux;
     aux = no->dir;
     no->dir = aux->esq;
@@ -61,11 +73,13 @@ struct tNo *rotEsquerda (struct tArvore *tree, struct tNo *no) {
     aux->esq = no;
     no->pai = aux;
 
+    no->altura = calculaAltura(no);
+    aux->altura = calculaAltura(aux);
+
     return aux;
 }
 
 struct tNo *rotDireita (struct tArvore *tree, struct tNo *no) {
-    printf("Rotacionando pra direita!\n");
     struct tNo *aux;
     aux = no->esq;
     no->esq = aux->dir;
@@ -83,13 +97,16 @@ struct tNo *rotDireita (struct tArvore *tree, struct tNo *no) {
     aux->dir = no;
     no->pai = aux;
 
+    no->altura = calculaAltura(no);
+    aux->altura = calculaAltura(aux);
+
     return aux;
 }
 
 struct tNo *min(struct tNo *no) {
-    if (no->esq == NULL)
+    if (no->dir == NULL)
         return no;
-    return min(no->esq);
+    return min(no->dir);
 }
 
 struct tNo *criaNo(int chave) {
@@ -103,70 +120,99 @@ struct tNo *criaNo(int chave) {
     no->esq = NULL;
     no->dir = NULL;
     no->pai = NULL;
-    no->equilibrio = 0;
+    no->altura = 0;
 
     return no;
 }
 
-int altura(struct tNo *no) {
-    int alturaEsq, alturaDir;
-    if (no == NULL)
-        return -1;
-
-    alturaEsq = altura(no->esq);
-    alturaDir = altura(no->dir);
-
-    if (alturaEsq < alturaDir)
-        return alturaDir + 1;
-    return alturaEsq + 1;
+int calculaEquilibrio(struct tNo *no) {
+    return calculaAltura(no->esq) - calculaAltura(no->dir);
 }
 
-struct tNo *ajustaArvore(struct tArvore *tree, struct tNo *no, int *controle) {
-    struct tNo *aux;
-    if (no->equilibrio == -2) {
-        if (no->esq != NULL && no->esq->equilibrio > 0)
+struct tNo *ajustaInsereArvore(struct tArvore *tree, struct tNo *no, int chave) {
+    int equilibrio;
+
+    no->altura = calculaAltura(no);
+    equilibrio = calculaEquilibrio(no);
+
+    if (equilibrio > 1) {
+        if (no->esq != NULL && chave >= no->esq->chave)
             no->esq = rotEsquerda(tree, no->esq);
-        aux = rotDireita(tree, no);
+        return rotDireita(tree, no);
     }
-    else {
-        if (no->dir != NULL && no->dir->equilibrio < 0)
+    else if (equilibrio < -1) {
+        if (no->dir != NULL && chave < no->dir->chave)
             no->dir = rotDireita(tree, no->dir);
-        aux = rotEsquerda(tree, no);
+        return rotEsquerda(tree, no);
     }
 
-    aux->equilibrio = 0;
-    aux->esq->equilibrio = altura(aux->esq->dir) - altura(aux->esq->esq);
-    aux->dir->equilibrio = altura(aux->dir->dir) - altura(aux->dir->esq);
-    (*controle) = 0;
-
-    return aux;
+    return no;
 }
 
-struct tNo *adicionaChave(struct tArvore *tree, struct tNo *no, int chave, int *controle) {
+struct tNo *adicionaChave(struct tArvore *tree, struct tNo *no, int chave) {
     if (no == NULL) {
         no = criaNo(chave);
-        (*controle) = 1;
         return no;
     }
 
     if (chave < no->chave) {
-        no->esq = adicionaChave(tree, no->esq, chave, controle);
+        no->esq = adicionaChave(tree, no->esq, chave);
         no->esq->pai = no;
-        if (*controle)
-            (no->equilibrio)--;
     }
     else {
-        no->dir = adicionaChave(tree, no->dir, chave, controle);
+        no->dir = adicionaChave(tree, no->dir, chave);
         no->dir->pai = no;
-        if (*controle)
-            (no->equilibrio)++;
     }
 
-    if (*controle) {
-        if (no->equilibrio == 0)
-            (*controle) = 0;
-        if (no->equilibrio < -1 || no->equilibrio > 1)
-            no = ajustaArvore(tree, no, controle);
+    return ajustaInsereArvore(tree, no, chave);
+}
+
+struct tNo *ajustaRemoveArvore(struct tArvore *tree, struct tNo *no) {
+    struct tNo *p, *x, *y, *z;
+    p = no;
+
+    while (p != NULL) {
+        p->altura = calculaAltura(p);
+
+        if(calculaEquilibrio(p) <= -2 || calculaEquilibrio(p) >= 2) { //grandparent is unbalanced
+            x = p;
+
+            //taller child of x will be y
+            if (x->esq->altura > x->dir->altura)
+                y = x->esq;
+            else
+                y = x->dir;
+
+            //taller child of y will be z
+            if (y->esq->altura > y->dir->altura)
+                z = y->esq;
+            else if (y->esq->altura < y->dir->altura)
+                z = y->dir;
+            else //same altura go for single rotation
+                if (y == x->esq)
+                    z = y->esq;
+                else
+                    z = y->dir;
+
+            //perform rotaions
+            if (y == x->esq) {
+                if (z == x->esq->esq) //case1
+                    rotDireita(tree, x);
+                else if (z == x->esq->dir) { //case 3
+                    rotEsquerda(tree, y);
+                    rotDireita(tree, x);
+                }
+            }
+            else if (y == x->dir) {
+                if (z == x->dir->dir) //case 2
+                    rotEsquerda(tree, x);
+                else if (z == x->dir->esq) { //case 4
+                    rotDireita(tree, y);
+                    rotEsquerda(tree, x);
+                }
+            }
+        }
+        p = p->pai;
     }
 
     return no;
@@ -185,32 +231,49 @@ void transplante(struct tArvore *tree, struct tNo *velho, struct tNo *novo) {
     if(novo != NULL) {
         novo->pai = velho->pai;
     }
-
-    free(velho);
 }
 
-void removeChave(struct tArvore *tree, int chave) {
-    int controle;
-    struct tNo *aux, *auxSucessor;
-    aux = busca(tree->raiz, chave);
+void removeChaveAux(struct tArvore *tree, struct tNo *no) {
+    struct tNo *sucessor, *aux;
+    aux = no->pai;
 
-    if (aux->esq == NULL)
-        transplante(tree, aux, aux->dir);
-    else {
-        if (aux->dir == NULL)
-            transplante(tree, aux, aux->esq);
-        else {
-            auxSucessor = min(aux->dir);
-            if (auxSucessor->pai != aux) {
-                transplante(tree, auxSucessor, auxSucessor->dir);
-                auxSucessor->dir = aux->dir;
-                auxSucessor->dir->pai = auxSucessor;
-            }
-            transplante(tree, aux, auxSucessor);
-            auxSucessor->esq = aux->esq;
-            auxSucessor->esq->pai = auxSucessor;
-        }
+    if (no->esq == NULL) {
+        transplante(tree, no, no->dir);
+        if (no->dir != NULL)
+            aux = no->dir;
+        free(no);
     }
+    else if (no->dir == NULL) {
+        transplante(tree, no, no->esq);
+        if (no->esq != NULL)
+            aux = no->esq;
+        free(no);
+    }
+    else {
+        sucessor = min(no->esq);
+        if (sucessor->pai != no) {
+            transplante(tree, sucessor, sucessor->esq);
+            sucessor->esq = no->esq;
+            sucessor->esq->pai = sucessor;
+        }
+        transplante(tree, no, sucessor);
+        sucessor->dir = no->dir;
+        sucessor->dir->pai = sucessor;
+        if (sucessor != NULL)
+            aux = sucessor;
+        free(no);
+    }
+
+    ajustaRemoveArvore(tree, aux);
+}
+
+struct tNo *removeChave(struct tArvore *tree, int chave) {
+    struct tNo *aux;
+    
+    aux = busca(tree->raiz, chave);
+    removeChaveAux(tree, aux);
+
+    return tree->raiz;
 }
 
 int quantidadeNos(struct tNo *no) {
@@ -220,17 +283,26 @@ int quantidadeNos(struct tNo *no) {
     return 1 + quantidadeNos(no->esq) + quantidadeNos(no->dir);
 }
 
-void imprimeValores(struct tNo *no, int alturaRaiz) {
+void imprimeValores(struct tNo *no) {
     if (no == NULL)
         return;
 
-    imprimeValores(no->esq, alturaRaiz);
-    printf("%d,%d\n", no->chave, alturaRaiz - altura(no));
-    imprimeValores(no->dir, alturaRaiz);
+    imprimeValores(no->esq);
+    printf("%d,%d\n", no->chave, no->altura);
+    imprimeValores(no->dir);
 }
 
-void imprimeEmOrdem(struct tNo *no) {
-    int alturaRaiz = altura(no);
+void inverteAlturas(struct tNo *no, int alt) {
+    if (no == NULL)
+        return;
 
-    imprimeValores(no, alturaRaiz);
+    no->altura = alt;
+
+    inverteAlturas(no->esq, alt + 1);
+    inverteAlturas(no->dir, alt + 1);
+}
+
+void imprimeEmOrdem(struct tArvore *tree) {
+    inverteAlturas(tree->raiz, 0);
+    imprimeValores(tree->raiz);
 }
