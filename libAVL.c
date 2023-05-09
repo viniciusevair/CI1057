@@ -136,12 +136,12 @@ struct tNo *ajustaInsereArvore(struct tArvore *tree, struct tNo *no, int chave) 
     equilibrio = calculaEquilibrio(no);
 
     if (equilibrio > 1) {
-        if (no->esq != NULL && chave >= no->esq->chave)
+        if (chave >= no->esq->chave)
             no->esq = rotEsquerda(tree, no->esq);
         return rotDireita(tree, no);
     }
     else if (equilibrio < -1) {
-        if (no->dir != NULL && chave < no->dir->chave)
+        if (chave < no->dir->chave)
             no->dir = rotDireita(tree, no->dir);
         return rotEsquerda(tree, no);
     }
@@ -168,8 +168,7 @@ struct tNo *adicionaChave(struct tArvore *tree, struct tNo *no, int chave) {
 }
 
 struct tNo *ajustaRemoveArvore(struct tArvore *tree, struct tNo *no) {
-    struct tNo *filhoMaior, *netoMaior;
-    int equilibrio, equilibrioFilho;
+    int equilibrio;
 
     if (no == NULL)
         return no;
@@ -177,39 +176,15 @@ struct tNo *ajustaRemoveArvore(struct tArvore *tree, struct tNo *no) {
     no->altura = calculaAltura(no);
     equilibrio = calculaEquilibrio(no);
 
-    if(equilibrio < -1 || equilibrio > 1) {
-        if (equilibrio > 0)
-            filhoMaior = no->esq;
-        else
-            filhoMaior = no->dir;
-
-        equilibrioFilho = calculaEquilibrio(filhoMaior);
-        if (equilibrioFilho > 0)
-            netoMaior = filhoMaior->esq;
-        else if (equilibrioFilho < 0)
-            netoMaior = filhoMaior->dir;
-        else
-            if (filhoMaior == no->esq)
-                netoMaior = filhoMaior->esq;
-            else
-                netoMaior = filhoMaior->dir;
-
-        if (equilibrio > 0) {
-            if (netoMaior == no->esq->esq)
-                rotDireita(tree, no);
-            else if (netoMaior == no->esq->dir) {
-                rotEsquerda(tree, filhoMaior);
-                rotDireita(tree, no);
-            }
-        }
-        else {
-            if (netoMaior == no->dir->dir)
-                rotEsquerda(tree, no);
-            else if (netoMaior == no->dir->esq) {
-                rotDireita(tree, filhoMaior);
-                rotEsquerda(tree, no);
-            }
-        }
+    if (equilibrio > 1) {
+        if (calculaEquilibrio(no->esq) < 0)
+            no->esq = rotEsquerda(tree, no->esq);
+        no = rotDireita(tree, no);
+    }
+    else if (equilibrio < -1) {
+        if (calculaEquilibrio(no->dir) > 0)
+            no->dir = rotDireita(tree, no->dir);
+        no = rotEsquerda(tree, no);
     }
 
     return ajustaRemoveArvore(tree, no->pai);
