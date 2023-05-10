@@ -1,20 +1,22 @@
 # Makefile generico
 
-CFLAGS = -Wall -std=c99 -g  # flags de compilacao
-LDFLAGS = -lm
-programName = main
-programLib = libAVL
+# flags de compilacao
+CFLAGS = -Wall -g 
 
+# nome do executavel/main
+programName = myavl
+
+# compilador
 CC = gcc
 
 # arquivos-objeto
-objects = $(programName).o $(programLib).o
+objects = $(programName).o libAVL.o
 
 $(programName): $(objects)
 	$(CC) -o $(programName) $(objects) $(LDFLAGS)
 
-$(programLib).o: $(programLib).c
-	$(CC) -c $(CFLAGS) $(programLib).c
+libAVL.o: libAVL.c
+	$(CC) -c $(CFLAGS) libAVL.c
 
 $(programName).o: $(programName).c
 	$(CC) -c $(CFLAGS) $(programName).c
@@ -26,4 +28,5 @@ purge: clean
 	rm -f $(programName)
 
 run: $(programName)
-	./$(programName)
+	./$(programName) < teste4.in > saida4
+	diff saida4 teste4.out
