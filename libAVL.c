@@ -127,10 +127,10 @@ struct tNo *rotDireita (struct tArvore *tree, struct tNo *no) {
  * Recebe como parametro um no. Retorna um ponteiro para o no com a chave
  * antecessora a chave do no.
  */
-struct tNo *encontroAntecessor(struct tNo *no) {
+struct tNo *encontraAntecessor(struct tNo *no) {
     if (no->dir == NULL)
         return no;
-    return encontroAntecessor(no->dir);
+    return encontraAntecessor(no->dir);
 }
 
 /* 
@@ -186,6 +186,11 @@ struct tNo *ajustaInsereArvore(struct tArvore *tree, struct tNo *no) {
     return no;
 }
 
+/*
+ * Recebe como parametro uma chave, uma arvore e um no. Cria e adiciona um no
+ * com a chave na arvore especificada, ordenando a partir do no especificado.
+ * Retorna um ponteiro para o 
+ */
 struct tNo *adicionaChaveAux(struct tArvore *tree, struct tNo *no, int chave) {
     if (no == NULL) {
         no = criaNo(chave);
@@ -209,6 +214,11 @@ struct tNo *adicionaChave(struct tArvore *tree, int chave) {
     return adicionaChaveAux(tree, tree->raiz, chave);
 }
 
+/*
+ * Funcao auxiliar que verifica o equilibrio do no (menor que -2 ou maior que 2
+ * indicam desequilibrio) e faz as rotacoes necessarias para corrigir o
+ * equilibrio. Recalcula recursivamente o equilibrio ate a raiz.
+ */
 struct tNo *ajustaRemoveArvore(struct tArvore *tree, struct tNo *no) {
     int equilibrio;
 
@@ -231,6 +241,7 @@ struct tNo *ajustaRemoveArvore(struct tArvore *tree, struct tNo *no) {
     return ajustaRemoveArvore(tree, no->pai);
 }
 
+/* Coloca um novo no na posicao de um no antigo. */
 void transplante(struct tArvore *tree, struct tNo *velho, struct tNo *novo) {
     if (velho == tree->raiz)
         tree->raiz = novo;
@@ -246,32 +257,51 @@ void transplante(struct tArvore *tree, struct tNo *velho, struct tNo *novo) {
     }
 }
 
+/*
+ * Faz o transplante nos nodos corretamente a depender dos tres casos possiveis.
+ */
 void removeChaveAux(struct tArvore *tree, struct tNo *no) {
     struct tNo *antecessor, *aux;
     aux = no->pai;
 
+    /* Caso em que o nodo tem apenas o filho da direita. */
     if (no->esq == NULL) {
         transplante(tree, no, no->dir);
+
         if (no->dir != NULL)
             aux = no->dir;
+
         free(no);
     }
+    /* Caso o no tenha apenas o filho da esquerda ou nenhum filho. */
     else if (no->dir == NULL) {
         transplante(tree, no, no->esq);
+
         if (no->esq != NULL)
             aux = no->esq;
-        free(no);
+
+        free(no); //No caso de nenhum filho, simplesmente deleta o no.
     }
+    /* Caso o no tenha os dois filhos */
     else {
-        antecessor = encontroAntecessor(no->esq);
+        antecessor = encontraAntecessor(no->esq);
+
+        /* 
+         * Se o antecessor nao estiver diretamente conectado no no a ser
+         * removido, e necessario corrigir os ponteiros para o filho esquerdo do
+         * no.
+         */
         if (antecessor->pai != no) {
             transplante(tree, antecessor, antecessor->esq);
             antecessor->esq = no->esq;
             antecessor->esq->pai = antecessor;
         }
+
         transplante(tree, no, antecessor);
+
         antecessor->dir = no->dir;
         antecessor->dir->pai = antecessor;
+
         if (antecessor != NULL)
             aux = antecessor;
         free(no);
@@ -291,6 +321,7 @@ struct tNo *removeChave(struct tArvore *tree, int chave) {
     return tree->raiz;
 }
 
+/* Conta quantos nos possuem na subarvore que comeca em no. */
 int quantidadeNos(struct tNo *no) {
     if (no == NULL)
         return 0;
@@ -298,26 +329,17 @@ int quantidadeNos(struct tNo *no) {
     return 1 + quantidadeNos(no->esq) + quantidadeNos(no->dir);
 }
 
-void imprimeValores(struct tNo *no) {
+/* Caminha recursivamente e imprime a chave e nivel de cada no emordem. */
+void imprimeValores(struct tNo *no, int nivel) {
     if (no == NULL)
         return;
 
-    imprimeValores(no->esq);
-    printf("%d,%d\n", no->chave, no->altura);
-    imprimeValores(no->dir);
+    imprimeValores(no->esq, nivel + 1);
+    printf("%d,%d\n", no->chave, nivel);
+    imprimeValores(no->dir, nivel + 1);
 }
 
-void inverteAlturas(struct tNo *no, int alt) {
-    if (no == NULL)
-        return;
-
-    no->altura = alt;
-
-    inverteAlturas(no->esq, alt + 1);
-    inverteAlturas(no->dir, alt + 1);
-}
-
+/* Wrapper para a funcao que imprime as chaves e os niveis dos nos. */
 void imprimeEmOrdem(struct tArvore *tree) {
-    inverteAlturas(tree->raiz, 0);
-    imprimeValores(tree->raiz);
+    imprimeValores(tree->raiz, 0);
 }
