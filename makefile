@@ -28,5 +28,5 @@ purge: clean
 	rm -f $(programName)
 
 run: $(programName)
-	./$(programName) < teste4.in > saida4
-	diff saida4 teste4.out
+	./$(programName) < teste4.in > saida4.out
+	diff saida4.out teste4.out
