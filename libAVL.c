@@ -49,7 +49,7 @@ struct tNo *busca(struct tNo *no, int chave) {
     return busca(no->dir, chave);
 }
 
-/* Refaz o calculo da altura de um no e retorna o valor como um inteiro. */
+/* Faz o calculo da altura de um no e retorna o valor como um inteiro. */
 int calculaAltura(struct tNo *no) {
     int alturaEsq, alturaDir;
     if (no == NULL)
@@ -65,8 +65,6 @@ int calculaAltura(struct tNo *no) {
 
 /*
  * Reorganiza os nos da arvore fazendo uma rotacao para a esquerda.
- * Diminui em 1 a altura da subarvore no processo e, por conta disso, recalcula
- * a altura dos nos envolvidos na rotacao.
  * Retorna um ponteiro para a nova raiz da subarvore.
  */
 struct tNo *rotEsquerda (struct tArvore *tree, struct tNo *no) {
@@ -87,16 +85,11 @@ struct tNo *rotEsquerda (struct tArvore *tree, struct tNo *no) {
     aux->esq = no;
     no->pai = aux;
 
-    no->altura = calculaAltura(no);
-    aux->altura = calculaAltura(aux);
-
     return aux;
 }
 
 /*
  * Reorganiza os nos da arvore fazendo uma rotacao para a direita.
- * Diminui em 1 a altura da subarvore no processo e, por conta disso, recalcula
- * a altura dos nos envolvidos na rotacaoo.
  * Retorna um ponteiro para a nova raiz da subarvore.
  */
 struct tNo *rotDireita (struct tArvore *tree, struct tNo *no) {
@@ -116,9 +109,6 @@ struct tNo *rotDireita (struct tArvore *tree, struct tNo *no) {
 
     aux->dir = no;
     no->pai = aux;
-
-    no->altura = calculaAltura(no);
-    aux->altura = calculaAltura(aux);
 
     return aux;
 }
@@ -148,7 +138,6 @@ struct tNo *criaNo(int chave) {
     no->esq = NULL;
     no->dir = NULL;
     no->pai = NULL;
-    no->altura = 0;
 
     return no;
 }

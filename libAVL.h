@@ -9,7 +9,6 @@
  */
 struct tNo {
     int chave;
-    int altura;
     struct tNo *esq, *dir, *pai;
 };
 
