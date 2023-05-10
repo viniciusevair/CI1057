@@ -13,8 +13,8 @@ int main(int argc, char *argv[]) {
 
     while ((scanf(" %c %d", &option, &chave) == 2)) {
         if (option == 'i')
-            tree->raiz = adicionaChave(tree, tree->raiz, chave);
-        if (option == 'r')
+            tree->raiz = adicionaChave(tree, chave);
+        else if (option == 'r')
             tree->raiz = removeChave(tree, chave);
     }
 

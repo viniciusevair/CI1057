@@ -14,6 +14,7 @@ struct tArvore *criaArvore() {
     return tree;
 }
 
+/* Funcao auxiliar para recursivamente destruir todos os nos da arvore. */
 struct tNo *destroiGalhos(struct tNo *no) {
     if(no->esq != NULL)
         destroiGalhos(no->esq);
@@ -26,12 +27,18 @@ struct tNo *destroiGalhos(struct tNo *no) {
 }
 
 struct tNo *destroiArvore(struct tArvore *tree) {
-    destroiGalhos(tree->raiz);
+    if (tree->raiz != NULL)
+        destroiGalhos(tree->raiz);
     free(tree);
 
     return NULL;
 }
 
+/*
+ * Recebe como entrada uma chave a ser buscada, e um no como ponto de partida.
+ * Retorna um ponteiro para o no da chave em caso de sucesso e NULL caso a chave
+ * nao exista na arvore.
+ */
 struct tNo *busca(struct tNo *no, int chave) {
     if (no == NULL)
         return NULL;
@@ -42,6 +49,7 @@ struct tNo *busca(struct tNo *no, int chave) {
     return busca(no->dir, chave);
 }
 
+/* Refaz o calculo da altura de um no e retorna o valor como um inteiro. */
 int calculaAltura(struct tNo *no) {
     int alturaEsq, alturaDir;
     if (no == NULL)
@@ -55,6 +63,12 @@ int calculaAltura(struct tNo *no) {
     return alturaEsq + 1;
 }
 
+/*
+ * Reorganiza os nos da arvore fazendo uma rotacao para a esquerda.
+ * Diminui em 1 a altura da subarvore no processo e, por conta disso, recalcula
+ * a altura dos nos envolvidos na rotacao.
+ * Retorna um ponteiro para a nova raiz da subarvore.
+ */
 struct tNo *rotEsquerda (struct tArvore *tree, struct tNo *no) {
     struct tNo *aux;
     aux = no->dir;
@@ -79,6 +93,12 @@ struct tNo *rotEsquerda (struct tArvore *tree, struct tNo *no) {
     return aux;
 }
 
+/*
+ * Reorganiza os nos da arvore fazendo uma rotacao para a direita.
+ * Diminui em 1 a altura da subarvore no processo e, por conta disso, recalcula
+ * a altura dos nos envolvidos na rotacaoo.
+ * Retorna um ponteiro para a nova raiz da subarvore.
+ */
 struct tNo *rotDireita (struct tArvore *tree, struct tNo *no) {
     struct tNo *aux;
     aux = no->esq;
@@ -103,12 +123,20 @@ struct tNo *rotDireita (struct tArvore *tree, struct tNo *no) {
     return aux;
 }
 
-struct tNo *min(struct tNo *no) {
+/* 
+ * Recebe como parametro um no. Retorna um ponteiro para o no com a chave
+ * antecessora a chave do no.
+ */
+struct tNo *encontroAntecessor(struct tNo *no) {
     if (no->dir == NULL)
         return no;
-    return min(no->dir);
+    return encontroAntecessor(no->dir);
 }
 
+/* 
+ * Recebe como parametro um inteiro. Cria um no com todos os valores zerados,
+ * com excessao da chave. Retorna um ponteiro para o no. 
+ */
 struct tNo *criaNo(int chave) {
     struct tNo *no;
     if (! (no = malloc(sizeof(struct tNo)))) {
@@ -125,10 +153,20 @@ struct tNo *criaNo(int chave) {
     return no;
 }
 
+/*
+ * Recebe como entrada um no. Retorna um inteiro que representa o equilibrio do
+ * no. Valores positivos indicam que a subarvore do filho esquerdo e maior que a
+ * subarvore do filho direito, e valores negativos indicam o inverso.
+ */
 int calculaEquilibrio(struct tNo *no) {
     return calculaAltura(no->esq) - calculaAltura(no->dir);
 }
 
+/*
+ * Funcao auxiliar que verifica o equilibrio do no (menor que -2 ou maior que 2
+ * indicam desequilibrio) e faz as rotacoes necessarias para corrigir o
+ * equilibrio.
+ */
 struct tNo *ajustaInsereArvore(struct tArvore *tree, struct tNo *no) {
     int equilibrio;
 
@@ -148,22 +186,27 @@ struct tNo *ajustaInsereArvore(struct tArvore *tree, struct tNo *no) {
     return no;
 }
 
-struct tNo *adicionaChave(struct tArvore *tree, struct tNo *no, int chave) {
+struct tNo *adicionaChaveAux(struct tArvore *tree, struct tNo *no, int chave) {
     if (no == NULL) {
         no = criaNo(chave);
         return no;
     }
 
     if (chave < no->chave) {
-        no->esq = adicionaChave(tree, no->esq, chave);
+        no->esq = adicionaChaveAux(tree, no->esq, chave);
         no->esq->pai = no;
     }
     else {
-        no->dir = adicionaChave(tree, no->dir, chave);
+        no->dir = adicionaChaveAux(tree, no->dir, chave);
         no->dir->pai = no;
     }
 
     return ajustaInsereArvore(tree, no);
+}
+
+/* Wrapper para a funcao que adiciona chave */
+struct tNo *adicionaChave(struct tArvore *tree, int chave) {
+    return adicionaChaveAux(tree, tree->raiz, chave);
 }
 
 struct tNo *ajustaRemoveArvore(struct tArvore *tree, struct tNo *no) {
@@ -204,7 +247,7 @@ void transplante(struct tArvore *tree, struct tNo *velho, struct tNo *novo) {
 }
 
 void removeChaveAux(struct tArvore *tree, struct tNo *no) {
-    struct tNo *sucessor, *aux;
+    struct tNo *antecessor, *aux;
     aux = no->pai;
 
     if (no->esq == NULL) {
@@ -220,17 +263,17 @@ void removeChaveAux(struct tArvore *tree, struct tNo *no) {
         free(no);
     }
     else {
-        sucessor = min(no->esq);
-        if (sucessor->pai != no) {
-            transplante(tree, sucessor, sucessor->esq);
-            sucessor->esq = no->esq;
-            sucessor->esq->pai = sucessor;
+        antecessor = encontroAntecessor(no->esq);
+        if (antecessor->pai != no) {
+            transplante(tree, antecessor, antecessor->esq);
+            antecessor->esq = no->esq;
+            antecessor->esq->pai = antecessor;
         }
-        transplante(tree, no, sucessor);
-        sucessor->dir = no->dir;
-        sucessor->dir->pai = sucessor;
-        if (sucessor != NULL)
-            aux = sucessor;
+        transplante(tree, no, antecessor);
+        antecessor->dir = no->dir;
+        antecessor->dir->pai = antecessor;
+        if (antecessor != NULL)
+            aux = antecessor;
         free(no);
     }
 

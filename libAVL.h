@@ -1,9 +1,21 @@
+/*
+ * Biblioteca implementada pelo aluno Vinicius Evair da Silva para o Trabalho
+ * Pratico 1, da disciplina de Algoritmos e Estrutura de Dados III (CI1057).
+ */
+
+/*
+ * Estrutura interna que guarda as informacoes alocadas na estrutura Arvore. O
+ * usuario final nao tem acesso direto a ela.
+ */
 struct tNo {
     int chave;
     int altura;
     struct tNo *esq, *dir, *pai;
 };
 
+/*
+ * Estrutura para guardar algum tipo de dado.
+ */
 struct tArvore {
     struct tNo *raiz;
 };
@@ -25,7 +37,7 @@ struct tNo *destroiArvore(struct tArvore *tree);
  * de chaves, com as chaves repetidas ficando para a direita da chave de mesmo
  * valor. Retorna um ponteiro para raiz da subarvore.
  */
-struct tNo *adicionaChave(struct tArvore *tree, struct tNo *no, int chave);
+struct tNo *adicionaChave(struct tArvore *tree, int chave);
 
 /*
  * Remove um no da arvore. Retorna a raiz da arvore em caso de sucesso e NULL em
@@ -33,5 +45,9 @@ struct tNo *adicionaChave(struct tArvore *tree, struct tNo *no, int chave);
  */
 struct tNo *removeChave(struct tArvore *tree, int chave);
 
-/* Imprime os valores guardados na estrutura */
+/* 
+ * Imprime os valores guardados na estrutura em ordem crescente, e também
+ * imprime o nivel do no da chave. Em caso de chaves duplicadas, a ordenacao se
+ * da pela ordem crescente dos niveis.
+ */
 void imprimeEmOrdem(struct tArvore *tree);
