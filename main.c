@@ -5,14 +5,13 @@
 int main(int argc, char *argv[]) {
     struct tArvore *tree;
     int qtd;
+    char option;
+    int chave;
     scanf("%d", &qtd);
 
     tree = criaArvore();
 
-    for (int i = 0; i < qtd; i++) {
-        char option;
-        int chave;
-        scanf(" %c %d", &option, &chave);
+    while ((scanf(" %c %d", &option, &chave) == 2)) {
         if (option == 'i')
             tree->raiz = adicionaChave(tree, tree->raiz, chave);
         if (option == 'r')

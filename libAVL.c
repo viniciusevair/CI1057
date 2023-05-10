@@ -129,21 +129,20 @@ int calculaEquilibrio(struct tNo *no) {
     return calculaAltura(no->esq) - calculaAltura(no->dir);
 }
 
-struct tNo *ajustaInsereArvore(struct tArvore *tree, struct tNo *no, int chave) {
+struct tNo *ajustaInsereArvore(struct tArvore *tree, struct tNo *no) {
     int equilibrio;
 
-    no->altura = calculaAltura(no);
     equilibrio = calculaEquilibrio(no);
 
     if (equilibrio > 1) {
-        if (chave >= no->esq->chave)
+        if (calculaEquilibrio(no->esq) < 0)
             no->esq = rotEsquerda(tree, no->esq);
-        return rotDireita(tree, no);
+        no = rotDireita(tree, no);
     }
     else if (equilibrio < -1) {
-        if (chave < no->dir->chave)
+        if (calculaEquilibrio(no->dir) > 0)
             no->dir = rotDireita(tree, no->dir);
-        return rotEsquerda(tree, no);
+        no = rotEsquerda(tree, no);
     }
 
     return no;
@@ -164,7 +163,7 @@ struct tNo *adicionaChave(struct tArvore *tree, struct tNo *no, int chave) {
         no->dir->pai = no;
     }
 
-    return ajustaInsereArvore(tree, no, chave);
+    return ajustaInsereArvore(tree, no);
 }
 
 struct tNo *ajustaRemoveArvore(struct tArvore *tree, struct tNo *no) {
@@ -173,7 +172,6 @@ struct tNo *ajustaRemoveArvore(struct tArvore *tree, struct tNo *no) {
     if (no == NULL)
         return no;
 
-    no->altura = calculaAltura(no);
     equilibrio = calculaEquilibrio(no);
 
     if (equilibrio > 1) {
@@ -242,7 +240,9 @@ void removeChaveAux(struct tArvore *tree, struct tNo *no) {
 struct tNo *removeChave(struct tArvore *tree, int chave) {
     struct tNo *aux;
 
-    aux = busca(tree->raiz, chave);
+    if (! (aux = busca(tree->raiz, chave)))
+        return NULL;
+
     removeChaveAux(tree, aux);
 
     return tree->raiz;
