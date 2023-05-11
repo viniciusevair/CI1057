@@ -5,10 +5,11 @@
 
 /*
  * Estrutura interna que guarda as informacoes alocadas na estrutura Arvore. O
- * usuario final nao tem acesso direto a ela.
+ * usuario nao tem acesso direto a ela.
  */
 struct tNo {
     int chave;
+    int altura;
     struct tNo *esq, *dir, *pai;
 };
 

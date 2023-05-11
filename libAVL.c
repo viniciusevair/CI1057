@@ -14,7 +14,7 @@ struct tArvore *criaArvore() {
     return tree;
 }
 
-/* Funcao auxiliar para recursivamente destruir todos os nos da arvore. */
+/* Caminha pela arvore fazendo a liberacao da memoria de cada no em posordem. */
 struct tNo *destroiGalhos(struct tNo *no) {
     if(no->esq != NULL)
         destroiGalhos(no->esq);
@@ -49,18 +49,18 @@ struct tNo *busca(struct tNo *no, int chave) {
     return busca(no->dir, chave);
 }
 
-/* Faz o calculo da altura de um no e retorna o valor como um inteiro. */
-int calculaAltura(struct tNo *no) {
-    int alturaEsq, alturaDir;
+int max(int a, int b) {
+    if (a < b)
+        return b;
+    return a;
+}
+
+/* Retorna a altura do no. A altura de um no nulo e considerada -1. */
+int altura(struct tNo *no) {
     if (no == NULL)
         return -1;
 
-    alturaEsq = calculaAltura(no->esq);
-    alturaDir = calculaAltura(no->dir);
-
-    if (alturaEsq < alturaDir)
-        return alturaDir + 1;
-    return alturaEsq + 1;
+    return no->altura;
 }
 
 /*
@@ -84,6 +84,9 @@ struct tNo *rotEsquerda (struct tArvore *tree, struct tNo *no) {
 
     aux->esq = no;
     no->pai = aux;
+
+    no->altura = 1 + max(altura(no->esq), altura(no->dir));
+    aux->altura = 1 + max(altura(aux->esq), altura(aux->dir));
 
     return aux;
 }
@@ -109,6 +112,9 @@ struct tNo *rotDireita (struct tArvore *tree, struct tNo *no) {
 
     aux->dir = no;
     no->pai = aux;
+
+    no->altura = 1 + max(altura(no->esq), altura(no->dir));
+    aux->altura = 1 + max(altura(aux->esq), altura(aux->dir));
 
     return aux;
 }
@@ -138,6 +144,7 @@ struct tNo *criaNo(int chave) {
     no->esq = NULL;
     no->dir = NULL;
     no->pai = NULL;
+    no->altura = 0;
 
     return no;
 }
@@ -148,7 +155,7 @@ struct tNo *criaNo(int chave) {
  * subarvore do filho direito, e valores negativos indicam o inverso.
  */
 int calculaEquilibrio(struct tNo *no) {
-    return calculaAltura(no->esq) - calculaAltura(no->dir);
+    return altura(no->esq) - altura(no->dir);
 }
 
 /*
@@ -159,6 +166,7 @@ int calculaEquilibrio(struct tNo *no) {
 struct tNo *ajustaInsereArvore(struct tArvore *tree, struct tNo *no) {
     int equilibrio;
 
+    no->altura = 1 + max(altura(no->esq), altura(no->dir));
     equilibrio = calculaEquilibrio(no);
 
     if (equilibrio > 1) {
@@ -214,6 +222,7 @@ struct tNo *ajustaRemoveArvore(struct tArvore *tree, struct tNo *no) {
     if (no == NULL)
         return no;
 
+    no->altura = 1 + max(altura(no->esq), altura(no->dir));
     equilibrio = calculaEquilibrio(no);
 
     if (equilibrio > 1) {
@@ -256,25 +265,20 @@ void removeChaveAux(struct tArvore *tree, struct tNo *no) {
     /* Caso em que o nodo tem apenas o filho da direita. */
     if (no->esq == NULL) {
         transplante(tree, no, no->dir);
-
         if (no->dir != NULL)
             aux = no->dir;
-
         free(no);
     }
     /* Caso o no tenha apenas o filho da esquerda ou nenhum filho. */
     else if (no->dir == NULL) {
         transplante(tree, no, no->esq);
-
         if (no->esq != NULL)
             aux = no->esq;
-
         free(no); //No caso de nenhum filho, simplesmente deleta o no.
     }
     /* Caso o no tenha os dois filhos */
     else {
         antecessor = encontraAntecessor(no->esq);
-
         /* 
          * Se o antecessor nao estiver diretamente conectado no no a ser
          * removido, e necessario corrigir os ponteiros para o filho esquerdo do
@@ -287,10 +291,8 @@ void removeChaveAux(struct tArvore *tree, struct tNo *no) {
         }
 
         transplante(tree, no, antecessor);
-
         antecessor->dir = no->dir;
         antecessor->dir->pai = antecessor;
-
         if (antecessor != NULL)
             aux = antecessor;
         free(no);
