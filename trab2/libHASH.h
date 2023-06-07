@@ -1,19 +1,35 @@
-struct hashTable {
-    int **T1;
-    int **T2;
+#ifndef __HASH
+#define __HASH
+
+enum estado_t {
+    VAZIO,
+    OCUPADO,
+    EXCLUIDO,
+};
+
+struct pos_hash {
+    int chave;
+    enum estado_t estado;
+};
+
+struct tabela_hash {
+    struct pos_hash **T1;
+    struct pos_hash **T2;
     int tam;
 };
 
-struct hashTable* criaTabela();
+struct tabela_hash* cria_tabela();
 
-struct hashTable* destroiTabela();
+struct tabela_hash* destroi_tabela(struct tabela_hash *tabela);
 
-int h1();
+int h1(int chave);
 
-int h2();
+int h2(int chave);
 
-void insereValor();
+int insere_valor(struct tabela_hash *tabela, int chave);
 
-void buscaValor();
+void busca_valor(struct tabela_hash *tabela, int chave);
 
-void removeValor();
+void remove_valor(struct tabela_hash *tabela, int chave);
+
+#endif
