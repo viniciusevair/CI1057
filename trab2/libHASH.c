@@ -79,10 +79,33 @@ int insere_valor(struct tabela_hash *tabela, int chave) {
     }
 }
 
-void busca_valor(struct tabela_hash *tabela, int chave) {
+int busca_valor(struct tabela_hash *tabela, int chave) {
+    int pos, aux;
+    pos = h1(chave);
+
+    if(tabela->T1[pos]->chave == chave) {
+        return pos;
+    } else if (tabela->T1[pos]->estado != VAZIO) {
+        aux = h2(chave);
+        if(tabela->T2[aux]->chave == chave)
+            return aux;
+    }
+
+    return -1;
 }
 
 void remove_valor(struct tabela_hash *tabela, int chave) {
+    int pos, aux;
+    pos = h1(chave);
+
+    if(tabela->T1[pos]->chave == chave) {
+        //arrumar os ponteiros depois
+        tabela->T1[pos]->estado = EXCLUIDO;
+    } else {
+        aux = h2(chave);
+        if(tabela->T2[aux]->chave == chave)
+            tabela->T2[aux]->estado = EXCLUIDO;
+    }
 }
 
 void escreve_tabela(struct tabela_hash *tabela, int chave) {
