@@ -7,29 +7,30 @@ enum estado_t {
     EXCLUIDO,
 };
 
-struct pos_hash {
+struct pos_hash_t {
     int chave;
     enum estado_t estado;
 };
 
-struct tabela_hash {
-    struct pos_hash **T1;
-    struct pos_hash **T2;
+struct tabela_hash_t {
+    struct pos_hash_t *T;
     int tam;
 };
 
-struct tabela_hash* cria_tabela();
+struct tabela_hash_t* cria_tabela();
 
-struct tabela_hash* destroi_tabela(struct tabela_hash *tabela);
+void destroi_tabela(struct tabela_hash_t *tabela);
 
 int h1(int chave);
 
 int h2(int chave);
 
-int insere_valor(struct tabela_hash *tabela, int chave);
+void insere_valor(struct tabela_hash_t *tabela, int chave);
 
-void busca_valor(struct tabela_hash *tabela, int chave);
+int busca_valor(struct tabela_hash_t *tabela, int chave);
 
-void remove_valor(struct tabela_hash *tabela, int chave);
+void remove_valor(struct tabela_hash_t *tabela, int chave);
+
+void escreve_ordenado(struct tabela_hash_t *tabela);
 
 #endif
