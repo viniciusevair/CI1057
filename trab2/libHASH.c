@@ -64,9 +64,15 @@ void insere_valor(struct tabela_hash_t *tabela, int chave) {
     int pos_t1, pos_t2;
     pos_t1 = h1(chave);
 
-    if(tabela->T[pos_t1]->estado != OCUPADO) {
+    if(tabela->T[pos_t1]->estado == VAZIO) {
         tabela->T[pos_t1]->chave = chave;
         tabela->T[pos_t1]->estado = OCUPADO;
+    } else if(tabela->T[pos_t1]->estado == EXCLUIDO) {
+        pos_t2 = h2(chave);
+        if(tabela->T[pos_t2]->estado == OCUPADO && tabela->T[pos_t2]->chave != chave) {
+            tabela->T[pos_t1]->chave = chave;
+            tabela->T[pos_t1]->estado = OCUPADO;
+        }
     } else {
         if(tabela->T[pos_t1]->chave == chave)
             return;
