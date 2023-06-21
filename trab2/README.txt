@@ -25,8 +25,16 @@ endereçados por h2, simulando assim, as tabelas T1 e T2. A escolha do uso de um
 deste trabalho.
 
 III.a Da Inserção
+    A inserção usa a função h1 para checar a disponibilidade da célula em T1 e insere a chave se o estado da célula for VAZIO ou EXCLUIDO. Em caso de indisponibilidade, verifica se a célula ocupada em T1 já contém a chave que está sendo inserida e, se for este o caso, simplesmente termina a função, efetivamente descartando o dado novo.
+    Sendo a chave a ser inserida diferente da já presente em T1, utiliza a função h2 para verificar a disponibilidade em T2, preenchendo a célula se possível. Em caso da célula estar no estado OCUPADO, não há a necessidade de verificar se a chave presente é igual a que será inserida, uma vez que, dado as especificações do trabalho, o dado será excluído de qualquer forma.
+
 III.b Da Exclusão
+    A exclusão usa h1 para verificar se a célula em T1 não está vazia e em seguida, se possui a chave sendo excluida e, encontrando o dado, muda seu estado para EXCLUIDO, ficando então a celula livre para ser usada novamente. Em caso da chave em T1 ser diferente ou da célula possuir o estado EXLUIDO, repete o processo em T2 utilizando h2.
+
 III.c Da Busca
+    Busca o dado em T1 utilizando h1 e, caso a célula não esteja no estado VAZIO, verifica se a chave presente é a que está sendo buscada, retornando a célula em caso do estado não ser EXLUIDO.
+    Se a célula em T1 estiver no estado OCUPADO, mas com outra chave, repete o processo em T2 utilizando h2.
+    
 
 III.d Da Impressão
     Como explicado nos comentários da biblioteca, foi utilizado para a impressão
