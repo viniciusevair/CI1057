@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "libINSSORT.h"
 #include "libHASH.h"
 
 #define HASHTAM 11
@@ -69,7 +70,10 @@ void insere_valor(struct tabela_hash_t *tabela, int chave) {
         tabela->T[pos_t1]->estado = OCUPADO;
     } else if(tabela->T[pos_t1]->estado == EXCLUIDO) {
         pos_t2 = h2(chave);
-        if(tabela->T[pos_t2]->estado == OCUPADO && tabela->T[pos_t2]->chave != chave) {
+        if(tabela->T[pos_t2]->estado != OCUPADO) {
+            tabela->T[pos_t1]->chave = chave;
+            tabela->T[pos_t1]->estado = OCUPADO;
+        } else if(tabela->T[pos_t2]->estado == OCUPADO && tabela->T[pos_t2]->chave != chave) {
             tabela->T[pos_t1]->chave = chave;
             tabela->T[pos_t1]->estado = OCUPADO;
         }
@@ -88,11 +92,11 @@ struct pos_hash_t *busca_valor(struct tabela_hash_t *tabela, int chave) {
     int pos_t1, pos_t2;
     pos_t1 = h1(chave);
 
-    if(tabela->T[pos_t1]->chave == chave) {
+    if(tabela->T[pos_t1]->chave == chave && tabela->T[pos_t1]->estado == OCUPADO) {
         return tabela->T[pos_t1];
     } else if (tabela->T[pos_t1]->estado != VAZIO) {
         pos_t2 = h2(chave);
-        if(tabela->T[pos_t2]->chave == chave)
+        if(tabela->T[pos_t2]->chave == chave && tabela->T[pos_t2]->estado == OCUPADO)
             return tabela->T[pos_t2];
     }
 
@@ -104,7 +108,6 @@ void remove_valor(struct tabela_hash_t *tabela, int chave) {
     pos_t1 = h1(chave);
 
     if(tabela->T[pos_t1]->chave == chave) {
-        //arrumar os ponteiros depois
         tabela->T[pos_t1]->estado = EXCLUIDO;
     } else {
         pos_t2 = h2(chave);
@@ -112,61 +115,6 @@ void remove_valor(struct tabela_hash_t *tabela, int chave) {
             tabela->T[pos_t2]->estado = EXCLUIDO;
         }
     }
-}
-
-/*
- * Função simples que troca os valores guardados nos indices a e b do vetor.
- * Função auxiliar utilizada pelo Insertion Sort.
- */
-void trocar(int vetor[], int a, int b) {
-    int aux;
-    aux = vetor[a];
-    vetor[a] = vetor[b];
-    vetor[b] = aux;
-}
-
-// Busca binária. Função auxiliar utilizada pelo Insertion Sort.
-int buscar(int valor, int vetor[], int ini, int fim) {
-    int meio;
-
-    if(fim < ini)
-        return ini - 1;
-
-    meio = (ini + fim) >> 1;
-
-    if(valor < vetor[meio]) {
-        return buscar(valor, vetor, ini, meio - 1);
-    }
-
-    return buscar(valor, vetor, meio + 1, fim);
-}
-
-/*
- * Recebe um vetor indexado por [0..tam-1] com todos seus valores ordenados com
- * excessao do ultimo. Corrige a posição do último valor no vetor de maneira com
- * que o vetor fique completamente ordenado.
- * Função auxiliar utilizada pelo Insertion Sort.
- */ 
-void ordena(int vetor[], int tam) {
-    int posicao, i, ini, fim;
-    ini = 0;
-    fim = tam - 1;
-
-    posicao = buscar(vetor[fim], vetor, ini, fim);
-    for(i = fim; i > posicao + 1; i--)
-        trocar(vetor, i, i - 1);
-}
-
-/*
- * Recebe um vetor indexado por [0..tam-1]. Ordena o vetor recebido.
- * Função auxiliar utilizada pelo Insertion Sort.
- */
-void insertionSort(int vetor[], int tam){	
-    if(tam <= 1)
-        return;
-
-    insertionSort(vetor, tam - 1);
-    ordena(vetor, tam);
 }
 
 void escreve_ordenado(struct tabela_hash_t *tabela) {
@@ -205,4 +153,6 @@ void escreve_ordenado(struct tabela_hash_t *tabela) {
         else
             printf("%d,T2,%d\n", aux[i], ponteiro_aux->pos % HASHTAM);
     }
+
+    free(aux);
 }
