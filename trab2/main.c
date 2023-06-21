@@ -20,6 +20,6 @@ int main(int argc, char *argv[]) {
 
     destroi_tabela(tabela);
     tabela = NULL;
+
     return 0;
 }
-
