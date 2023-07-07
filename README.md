@@ -6,6 +6,6 @@ Bacharelado em Ciência da Computação.
 
 Neste repositório encontram-se os seguintes trabalhos:
 ### trab1 - AVL tree:
-  Biblioteca para controle de uma árvore binária do tipo AVL.
+  Biblioteca para a implementação de uma árvore binária do tipo AVL.
 ### trab2 - Cuckoo Hash:
-  Biblioteca para controle de uma Tabelha Hash que utiliza a tecnica de Cuckoo Hashing. A implementação não conta com rehash ou resizing.
+  Biblioteca para a implementação de uma tabela hash que utiliza a tecnica de Cuckoo Hashing. A implementação não conta com rehash ou resizing.
